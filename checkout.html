@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HikeSaver - Checkout</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .checkout-container {
+            margin: 60px auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+        .form-section {
+            background: var(--white-color);
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        .payment-info {
+            background: #E8F5E9; /* Light Green */
+            padding: 20px;
+            border-radius: var(--border-radius);
+            border: 1px solid #c8e6c9;
+            margin-bottom: 20px;
+        }
+        .order-summary {
+            background: var(--white-color);
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 100px;
+        }
+        @media (max-width: 768px) {
+            .checkout-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container checkout-container">
+            <div>
+                <h2>Checkout</h2>
+                <div class="form-section">
+                    <h3>Shipping Details</h3>
+                    
+                    <div class="form-group" id="savedAddressSelectorGroup" style="display:none; background:#f9f9f9; padding:15px; border-radius:8px; margin-top:20px;">
+                        <label>Select a Saved Address</label>
+                        <select id="savedAddressSelector">
+                            <option value="">-- Choose an address --</option>
+                        </select>
+                    </div>
+
+                    <form id="checkoutForm" style="margin-top: 20px;">
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label>Recipient Name</label>
+                                <input type="text" id="chkName" required placeholder="John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="text" id="chkPhone" required placeholder="+62...">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Full Address</label>
+                            <textarea id="chkAddress" rows="3" required placeholder="Jl. ..."></textarea>
+                        </div>
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label>City/Regency</label>
+                                <input type="text" id="chkCity" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Province</label>
+                                <input type="text" id="chkProvince" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Postal Code</label>
+                            <input type="text" id="chkZip" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Optional Notes</label>
+                            <textarea id="chkNotes" rows="2" placeholder="Delivery instructions..."></textarea>
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                            <input type="checkbox" id="chkSaveAddress" style="width:auto; transform:scale(1.2);">
+                            <label for="chkSaveAddress" style="margin-bottom:0;">Save this address for future purchases</label>
+                        </div>
+
+                        <h3 style="margin-top:30px;">Payment Method</h3>
+                        <div class="payment-info">
+                            <p style="font-weight:600; color: var(--primary-color);">Bank Transfer ONLY</p>
+                            <p style="margin-top:5px;">Please transfer the exact amount to:</p>
+                            <p style="font-size:1.2rem; font-weight:bold; margin-top:5px;">BCA 3621242707</p>
+                            <p style="color:#666; font-size:0.9rem;">a.n. Rizki Amelia Putri</p>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width:100%; font-size:1.1rem; padding: 15px;">Complete Purchase</button>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <div class="order-summary">
+                    <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px;">Order Summary</h3>
+                    <div id="summaryItems"></div>
+                    <div style="display:flex; justify-content:space-between; margin-top: 20px; font-weight:bold; font-size:1.2rem; border-top: 1px solid #ddd; padding-top:15px;">
+                        <span>Total:</span>
+                        <span id="summaryTotal">IDR 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        const DB_SAVED_ADDRESSES = 'hs_saved_addresses';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = getSession();
+            if(!session) {
+                alert('Please login to checkout.');
+                window.location.href = 'login.html';
+                return;
+            }
+            if(session.name) document.getElementById('chkName').value = session.name;
+            if(session.phone) document.getElementById('chkPhone').value = session.phone;
+            
+            const cart = getCart();
+            if(cart.length === 0) {
+                alert('Cart is empty.');
+                window.location.href = 'shop.html';
+                return;
+            }
+
+            // Load Saved Addresses
+            const savedAddressesStr = localStorage.getItem(DB_SAVED_ADDRESSES);
+            const userAddresses = savedAddressesStr ? JSON.parse(savedAddressesStr)[session.email || session.phone] : [];
+            
+            if(userAddresses && userAddresses.length > 0) {
+                const selectorGroup = document.getElementById('savedAddressSelectorGroup');
+                const selector = document.getElementById('savedAddressSelector');
+                selectorGroup.style.display = 'block';
+                
+                userAddresses.forEach((addr, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = `${addr.address}, ${addr.city}`;
+                    selector.appendChild(opt);
+                });
+
+                selector.addEventListener('change', (e) => {
+                    if(e.target.value !== '') {
+                        const addr = userAddresses[e.target.value];
+                        document.getElementById('chkName').value = addr.name;
+                        document.getElementById('chkPhone').value = addr.phone;
+                        document.getElementById('chkAddress').value = addr.address;
+                        document.getElementById('chkCity').value = addr.city;
+                        document.getElementById('chkProvince').value = addr.province;
+                        document.getElementById('chkZip').value = addr.zip;
+                    } else {
+                        // Reset forms
+                        document.getElementById('checkoutForm').reset();
+                        if(session.name) document.getElementById('chkName').value = session.name;
+                        if(session.phone) document.getElementById('chkPhone').value = session.phone;
+                    }
+                });
+            }
+
+            // Summary
+            let total = 0;
+            let html = '';
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                html += `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span>${item.name} (x${item.qty})</span>
+                        <span>IDR ${(item.price * item.qty).toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('summaryItems').innerHTML = html;
+            document.getElementById('summaryTotal').textContent = 'IDR ' + total.toLocaleString();
+
+            // Submit Setup
+            document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const addrData = {
+                    name: document.getElementById('chkName').value,
+                    phone: document.getElementById('chkPhone').value,
+                    address: document.getElementById('chkAddress').value,
+                    city: document.getElementById('chkCity').value,
+                    province: document.getElementById('chkProvince').value,
+                    zip: document.getElementById('chkZip').value,
+                    notes: document.getElementById('chkNotes').value
+                };
+
+                const orderData = {
+                    id: 'ORD-' + Date.now(),
+                    date: new Date().toISOString(),
+                    customer: addrData.name,
+                    phone: addrData.phone,
+                    notes: addrData.notes,
+                    address: `${addrData.address}, ${addrData.city}, ${addrData.province} ${addrData.zip}`,
+                    items: cart,
+                    total: total,
+                    status: 'Pending Payment Verification'
+                };
+
+                // Handle Saved Address
+                if(document.getElementById('chkSaveAddress').checked) {
+                    const allSaved = JSON.parse(localStorage.getItem(DB_SAVED_ADDRESSES)) || {};
+                    const userId = session.email || session.phone;
+                    if(!allSaved[userId]) allSaved[userId] = [];
+                    // add only if not exactly present
+                    allSaved[userId].push(addrData);
+                    localStorage.setItem(DB_SAVED_ADDRESSES, JSON.stringify(allSaved));
+                }
+
+                const orders = JSON.parse(localStorage.getItem(DB_ORDERS)) || [];
+                orders.push(orderData);
+                localStorage.setItem(DB_ORDERS, JSON.stringify(orders));
+                
+                clearCart();
+                alert('Order Placed Successfully! Please complete payment.');
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>

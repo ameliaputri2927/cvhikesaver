@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HikeSaver - Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .auth-container { max-width: 450px; margin: 60px auto; }
+        .auth-card { text-align: center; }
+        .auth-card h2 { margin-bottom: 30px; }
+        .method-selector {
+            display: flex;
+            background: #f1f1f1;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .method-selector label {
+            flex: 1;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .method-selector input { display: none; }
+        .method-selector input:checked + span {
+            color: var(--primary-color);
+        }
+        .method-selector label.active {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            color: var(--primary-color);
+        }
+        .form-error {
+            color: #d32f2f;
+            font-size: 0.9rem;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="auth-page-bg">
+    <!-- Header injected by app.js -->
+    <main>
+        <div class="container auth-container">
+            <div class="card auth-card">
+                <h2>Login or Register Account</h2>
+                <p style="color:var(--text-light); margin-bottom: 25px;">Select your preferred login method</p>
+
+                <form id="loginForm" style="text-align: left;">
+                    <div class="form-group" id="grpIdentifier">
+                        <label>Email Address or Phone Number</label>
+                        <input type="text" id="loginIdentifier" required placeholder="e.g. john@example.com or +628123456789">
+                    </div>
+
+                    <div class="form-group">
+                        <div style="display:flex; justify-content:space-between;">
+                            <label>Password</label>
+                            <a href="forgot-password.html" style="color:var(--primary-color); font-size: 14px;">Forgot password?</a>
+                        </div>
+                        <input type="password" id="loginPass" required placeholder="Enter your password">
+                    </div>
+
+                    <div id="errorMsg" class="form-error"></div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top:10px;">Continue</button>
+                    
+                    <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+                        <button type="button" class="btn btn-outline" style="flex:1;">Google</button>
+                        <button type="button" class="btn btn-outline" style="flex:1;">Apple</button>
+                    </div>
+                </form>
+
+                <p style="margin-top: 25px; color: #666;">
+                    Don’t have an account? <a href="register.html" style="color: var(--primary-color); font-weight: 600;">Register</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        function showError(msg) {
+            const err = document.getElementById('errorMsg');
+            err.textContent = msg;
+            err.style.display = 'block';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('errorMsg').style.display = 'none';
+
+            const identifier = document.getElementById('loginIdentifier').value.trim();
+            const password = document.getElementById('loginPass').value;
+            
+            // Validation for email missing "@"
+            if (/[a-zA-Z]/.test(identifier) && !identifier.includes('@')) {
+                return showError('Email addresses must contain an "@" symbol.');
+            }
+            
+            const users = JSON.parse(localStorage.getItem(DB_USERS)) || [];
+            
+            let user;
+            if (identifier.includes('@')) {
+                user = users.find(u => u.email === identifier && u.pass === password);
+                if(!users.find(u => u.email === identifier)) {
+                    return showError('No account found with this email.');
+                }
+            } else {
+                user = users.find(u => u.phone === identifier && u.pass === password);
+                if(!users.find(u => u.phone === identifier)) {
+                    return showError('No account found with this phone number.');
+                }
+            }
+            
+            if(user) {
+                setSession(user);
+                window.location.href = 'shop.html';
+            } else {
+                showError('Invalid password. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

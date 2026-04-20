@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HikeSaver - Shop T-Pack</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .product-page {
+            padding: 60px 0;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+        }
+        .product-image {
+            background-color: var(--white-color);
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .product-image img {
+            max-width: 100%;
+            border-radius: var(--border-radius);
+        }
+        .product-info h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .product-price {
+            font-size: 2rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        .product-description {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 40px;
+            text-align: justify;
+        }
+        .product-actions {
+            display: flex;
+            gap: 20px;
+        }
+        .product-actions .btn {
+            flex: 1;
+            padding: 16px;
+            font-size: 1.1rem;
+        }
+        @media (max-width: 768px) {
+            .product-grid { grid-template-columns: 1fr; }
+            .product-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="product-page container">
+            <div class="product-grid">
+                <div class="product-image">
+                    <img src="FOTO PRODUCT HIKESAVER.jpeg" alt="T-Pack Portable Stretcher">
+                </div>
+                <div class="product-info">
+                    <h1>T-Pack</h1>
+                    <div class="product-price">IDR 2,950,000</div>
+                    
+                    <div class="product-description">
+                        <p>T-Pack (Portable Stretcher) is a lightweight and foldable evacuation stretcher designed to support fast, safe, and efficient transport of injured individuals in outdoor and mountainous environments. Developed to address the limited availability of evacuation equipment during hiking emergencies, T-Pack provides a practical and reliable solution in situations where terrain is difficult and immediate assistance is not always accessible.</p>
+                        <br>
+                        <p>Equipped with a telescopic foldable frame, the product offers excellent portability, making it easy to carry and deploy when needed. Its ergonomic handle enhances comfort and control during evacuation, while the strong and durable structure ensures performance in rugged outdoor conditions. Each unit is carefully produced through a structured process, including material selection, assembly, and quality control to maintain consistent standards.</p>
+                        <br>
+                        <p>T-Pack has a maximum load capacity of 85 kg and is intended for emergency outdoor use, not as a replacement for hospital or ambulance medical equipment. The product is supported by a 6-month warranty for manufacturing defects and includes a user manual along with customer service access. Overall, T-Pack is a dependable and efficient solution for emergency evacuation, designed to meet the needs of rescue teams and outdoor enthusiasts alike.</p>
+                    </div>
+
+                    <div class="product-actions">
+                        <button class="btn btn-outline" id="btnAddToCart">Add to Cart</button>
+                        <button class="btn btn-primary" id="btnBuyNow">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        const PRODUCT = {
+            id: 't-pack-001',
+            name: 'T-Pack (Portable Stretcher)',
+            price: 2950000,
+            image: 'FOTO PRODUCT HIKESAVER.jpeg',
+            qty: 1
+        };
+
+        function requireAuth(callback) {
+            if(!getSession()) {
+                alert('Please login before proceeding.');
+                window.location.href = 'login.html';
+            } else {
+                callback();
+            }
+        }
+
+        document.getElementById('btnAddToCart').addEventListener('click', () => {
+            requireAuth(() => {
+                addToCart(PRODUCT);
+            });
+        });
+
+        document.getElementById('btnBuyNow').addEventListener('click', () => {
+            requireAuth(() => {
+                addToCart(PRODUCT); // Put in cart to allow checkout
+                window.location.href = 'checkout.html';
+            });
+        });
+    </script>
+</body>
+</html>

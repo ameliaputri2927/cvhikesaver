@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HikeSaver - Home</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(17,17,17,0.7), rgba(17,17,17,0.7)), url('FOTO PRODUCT HIKESAVER.jpeg') center/cover;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+            border-radius: 0 0 40px 40px;
+            margin-bottom: 60px;
+        }
+        .hero h1 {
+            color: white;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        /* About Section */
+        .about-section {
+            padding: 60px 0;
+        }
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        .vision-mission {
+            background-color: var(--white-color);
+            padding: 40px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        .vision-mission h2 {
+            border-bottom: 2px solid var(--primary-color);
+            display: inline-block;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Secure Every Adventure</h1>
+                <p>HikeSaver provides state-of-the-art safety and evacuation equipment for hikers, making sure you are always prepared for the unexpected.</p>
+                <div style="display:flex; gap:20px; justify-content:center;">
+                    <a href="shop.html" class="btn-primary" style="font-size: 1.1rem; padding: 15px 30px;">Shop Now</a>
+                    <a href="shop.html" class="btn-outline" style="color:white; border-color:white; font-size: 1.1rem; padding: 15px 30px;">View Products</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section container">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h2>About Us</h2>
+                <p style="max-width: 700px; margin: auto; color: var(--text-light);">We understand the unpredictability of nature. HikeSaver was founded to bridge the gap between outdoor enthusiasm and critical emergency preparedness.</p>
+            </div>
+            
+            <div class="about-content">
+                <div class="vision-mission">
+                    <h2>Our Vision</h2>
+                    <p>"HikeSaver strives to be a brand that provides reliable hiking gear for hikers and contributes to creating safer and more responsible hiking experiences for every adventure."</p>
+                </div>
+                <div class="vision-mission">
+                    <h2>Our Mission</h2>
+                    <p>"HikeSaver is committed to providing lightweight and portable hiking equipment for hikers, with products designed for easy portability across diverse hiking terrain."</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

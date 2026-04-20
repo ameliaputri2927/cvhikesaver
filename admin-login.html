@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HikeSaver - Admin Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { background-color: #f0f4f0; }
+        .admin-login-container { max-width: 450px; margin: 100px auto; }
+        .admin-login-card { text-align: center; background: white; padding: 40px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow); }
+        .admin-login-card h2 { color: var(--primary-color); margin-bottom: 20px; }
+        .badge-admin { background-color: #d32f2f; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; font-weight: bold; }
+    </style>
+</head>
+<body class="auth-page-bg">
+    <div class="container admin-login-container">
+        <div class="admin-login-card">
+            <span class="badge-admin">ADMIN PORTAL</span>
+            <h2>Secure Login</h2>
+            <form id="adminLoginForm" style="text-align: left;">
+                <div class="form-group">
+                    <label>Admin Username / Email</label>
+                    <input type="text" id="adminEmail" required placeholder="admin@...</p>">
+                </div>
+                <div class="form-group">
+                    <label>Admin Password</label>
+                    <input type="password" id="adminPass" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top:10px;">Login to Dashboard</button>
+            </form>
+            <p style="margin-top: 20px; font-size: 14px;"><a href="index.html" style="color: #666;">Return to Main Site</a></p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Override standard initialization for auth pages
+        window.disableInject = true;
+        
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPass').value;
+            
+            const users = JSON.parse(localStorage.getItem(DB_USERS)) || [];
+            const user = users.find(u => u.email === email && u.pass === password && u.role === 'admin');
+            
+            if(user) {
+                setSession(user);
+                window.location.href = 'admin.html';
+            } else {
+                alert('Access Denied. Invalid admin credentials.');
+            }
+        });
+    </script>
+</body>
+</html>

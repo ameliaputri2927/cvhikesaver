@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HikeSaver - Register</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .auth-container { max-width: 550px; margin: 60px auto; }
+        .auth-card { text-align: center; }
+        .auth-card h2 { margin-bottom: 20px; }
+        .form-error {
+            color: #d32f2f;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: none;
+            text-align: left;
+        }
+        .otp-selection {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .otp-selection .btn {
+            flex: 1;
+            font-size: 0.95rem;
+            padding: 12px;
+        }
+    </style>
+</head>
+<body class="auth-page-bg">
+    <main>
+        <div class="container auth-container">
+            <div class="card auth-card">
+                <h2>Create an Account</h2>
+                <p style="color:var(--text-light); margin-bottom: 30px;">Join HikeSaver today to secure your outdoor adventures.</p>
+                
+                <div id="errorMsg" class="form-error"></div>
+
+                <form id="registerForm" style="text-align: left;">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="regName" required placeholder="John Doe">
+                    </div>
+                    <div class="grid grid-2" style="gap:15px; margin-bottom:0;">
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="regPhone" required placeholder="+62...">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="regEmail" required placeholder="john@example.com">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-2" style="gap:15px; margin-bottom:0px;">
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="regPass" required placeholder="Create a password">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" id="regPassConfirm" required placeholder="Confirm your password">
+                        </div>
+                    </div>
+
+                    <div id="otpSection" style="margin-top: 20px;">
+                        <label id="otpMethodLabel" style="display:block; margin-bottom:10px; font-weight:500;">Verification Method</label>
+                        <div class="otp-selection" id="otpButtons">
+                            <button type="button" class="btn btn-outline" onclick="sendOtp('phone')">Send OTP to Phone Number</button>
+                            <button type="button" class="btn btn-outline" onclick="sendOtp('email')">Send OTP to Email</button>
+                        </div>
+
+                        <div class="form-group" id="otpGroup" style="display:none; background:#f0fcf4; padding: 15px; border-radius: 8px; border: 1px solid #c9ebd4;">
+                            <label style="color:var(--primary-color);">Enter OTP Verification Code</label>
+                            <p id="otpInstruction" style="font-size:13px; color:#555; margin-bottom:10px;">We've sent a code.</p>
+                            <input type="text" id="regOtp" placeholder="123456" maxlength="6">
+                            
+                            <p style="font-size:13px; color:#d32f2f; margin-top:5px; font-weight:bold;">Time remaining: <span id="otpTimerDisplay">01:00</span></p>
+
+                            <div style="margin-top:15px; padding-top:15px; border-top:1px solid #c9ebd4;">
+                                <p style="font-size:13px; font-weight:bold; margin-bottom:5px;">Didn’t receive the code?</p>
+                                <ul style="font-size:12px; color:#555; padding-left:20px; margin-bottom:10px;">
+                                    <li>Check your Spam folder (for email)</li>
+                                    <li>Make sure your phone number is correct</li>
+                                </ul>
+                                <div style="display:flex; gap:10px;">
+                                    <button type="button" id="resendEmail" class="btn btn-outline" style="font-size:12px; padding:8px;" disabled onclick="resendOtp('email')">Resend via Email</button>
+                                    <button type="button" id="resendPhone" class="btn btn-outline" style="font-size:12px; padding:8px;" disabled onclick="resendOtp('phone')">Resend via SMS</button>
+                                </div>
+                                <p id="resendFeedback" style="color:var(--primary-color); font-size:12px; margin-top:5px; display:none;">A new OTP has been sent.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="registerBtn" class="btn btn-primary" style="width: 100%; display:none; margin-top:20px;">Complete Registration</button>
+                </form>
+
+                <p style="margin-top: 25px; color: #666;">
+                    Already have an account? <a href="login.html" style="color: var(--primary-color); font-weight: 600;">Login</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        function showError(msg) {
+            const err = document.getElementById('errorMsg');
+            err.textContent = msg;
+            err.style.display = 'block';
+            window.scrollTo(0,0);
+        }
+
+        function clearError() {
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        function checkUniqueAndPass() {
+            clearError();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const passConfirm = document.getElementById('regPassConfirm').value;
+
+            if(!email || !phone) {
+                showError('Please fill in both Phone Number and Email.');
+                return false;
+            }
+            if(pass !== passConfirm) {
+                showError('Passwords do not match!');
+                return false;
+            }
+
+            const users = JSON.parse(localStorage.getItem(DB_USERS)) || [];
+            if(users.find(u => u.email === email)) {
+                showError('Email is already registered. Please login.');
+                return false;
+            }
+            if(users.find(u => u.phone === phone)) {
+                showError('Phone number is already registered.');
+                return false;
+            }
+            return true;
+        }
+
+        let currentOtp = null;
+        let otpExpiryTime = null;
+        let timerInterval = null;
+
+        function startTimer() {
+            let timeLeft = 60; // 60 seconds
+            document.getElementById('resendEmail').disabled = true;
+            document.getElementById('resendPhone').disabled = true;
+            document.getElementById('resendEmail').style.opacity = '0.5';
+            document.getElementById('resendPhone').style.opacity = '0.5';
+            document.getElementById('otpTimerDisplay').textContent = "01:00";
+
+            if(timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                document.getElementById('otpTimerDisplay').textContent = 
+                    `0${m}:${s < 10 ? '0' + s : s}`;
+
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('otpTimerDisplay').textContent = "00:00";
+                    document.getElementById('resendEmail').disabled = false;
+                    document.getElementById('resendPhone').disabled = false;
+                    document.getElementById('resendEmail').style.opacity = '1';
+                    document.getElementById('resendPhone').style.opacity = '1';
+                }
+            }, 1000);
+        }
+
+        function sendOtp(method, isResend = false) {
+            if(!checkUniqueAndPass()) return;
+            
+            // Set logic
+            currentOtp = '123456'; 
+            otpExpiryTime = Date.now() + 60000;
+
+            const target = method === 'phone' ? document.getElementById('regPhone').value : document.getElementById('regEmail').value;
+            document.getElementById('otpInstruction').textContent = `We've sent a 6-digit code to ${target}.`;
+            
+            document.getElementById('otpButtons').style.display = 'none';
+            document.getElementById('otpMethodLabel').style.display = 'none';
+            document.getElementById('otpGroup').style.display = 'block';
+            document.getElementById('registerBtn').style.display = 'block';
+            
+            startTimer();
+
+            if(isResend) {
+                document.getElementById('resendFeedback').style.display = 'block';
+                setTimeout(() => document.getElementById('resendFeedback').style.display = 'none', 3500);
+                alert('Mock OTP Code Resent (' + target + ')! Code: 123456');
+            } else {
+                alert('Mock OTP Code Sent (' + target + ')! Code is: 123456\nNote: You have 60 seconds before it expires.');
+            }
+        }
+
+        function resendOtp(method) {
+            sendOtp(method, true);
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if(!checkUniqueAndPass()) return;
+
+            const otpInput = document.getElementById('regOtp').value;
+            if(!otpInput) {
+                return showError('Please enter the OTP to verify your account.');
+            }
+            if(Date.now() > otpExpiryTime) {
+                return showError('OTP expired. Please wait for the timer and request a new code.');
+            }
+            if(otpInput !== currentOtp) {
+                return showError('Invalid OTP. Please try again or request a new code.');
+            }
+
+            // Successfully Verified
+            alert('OTP successfully verified!');
+
+            const newUser = { 
+                id: Date.now(), 
+                name: document.getElementById('regName').value, 
+                email: document.getElementById('regEmail').value, 
+                phone: document.getElementById('regPhone').value,
+                pass: document.getElementById('regPass').value, 
+                role: 'user' 
+            };
+
+            const users = JSON.parse(localStorage.getItem(DB_USERS)) || [];
+            users.push(newUser);
+            localStorage.setItem(DB_USERS, JSON.stringify(users));
+            
+            alert('Registration Successful! Please login to continue.');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>

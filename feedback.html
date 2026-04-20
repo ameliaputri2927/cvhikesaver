@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HikeSaver - Feedback</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .feedback-container {
+            max-width: 600px;
+            margin: 60px auto;
+        }
+        .feedback-card {
+            background: var(--white-color);
+            padding: 40px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .feedback-form {
+            text-align: left;
+            margin-top: 30px;
+        }
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 10px;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .star-rating input { display: none; }
+        .star-rating label {
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container feedback-container">
+            <div class="feedback-card">
+                <h2>We Value Your Feedback</h2>
+                <p style="color:var(--text-light); margin-top:10px;">Help us improve our products and services by leaving a short review.</p>
+                
+                <form class="feedback-form" id="feedbackForm">
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" id="fbName" required placeholder="John Doe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rating</label>
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5" required>
+                            <label for="star5" title="5 stars">★</label>
+                            
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4" title="4 stars">★</label>
+                            
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3" title="3 stars">★</label>
+                            
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2" title="2 stars">★</label>
+                            
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1" title="1 star">★</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Comments / Suggestions</label>
+                        <textarea id="fbComment" rows="4" required placeholder="Tell us about your experience..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Feedback</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = getSession();
+            if(session && session.name) {
+                document.getElementById('fbName').value = session.name;
+            }
+
+            document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const rating = document.querySelector('input[name="rating"]:checked');
+                if(!rating) {
+                    alert('Please select a star rating.');
+                    return;
+                }
+
+                const feedbackData = {
+                    id: Date.now(),
+                    date: new Date().toLocaleDateString(),
+                    name: document.getElementById('fbName').value,
+                    rating: parseInt(rating.value),
+                    comment: document.getElementById('fbComment').value
+                };
+
+                const feedbacks = JSON.parse(localStorage.getItem(DB_FEEDBACK)) || [];
+                feedbacks.push(feedbackData);
+                localStorage.setItem(DB_FEEDBACK, JSON.stringify(feedbacks));
+
+                alert('Thank you for your feedback!');
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>

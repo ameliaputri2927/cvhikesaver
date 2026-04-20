@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HikeSaver - Cart</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .cart-container {
+            margin: 60px auto;
+            max-width: 800px;
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ddd;
+            padding: 20px 0;
+        }
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .cart-details {
+            flex: 1;
+            margin-left: 20px;
+        }
+        .cart-item-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .cart-item-price {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .cart-summary {
+            background: var(--white-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-top: 30px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .summary-total {
+            font-weight: bold;
+            font-size: 1.4rem;
+            border-top: 2px solid #eee;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container cart-container">
+            <h2>Your Shopping Cart</h2>
+            
+            <div id="cartItems"></div>
+
+            <div class="cart-summary" id="cartSummary" style="display:none;">
+                <div class="summary-row summary-total">
+                    <span>Total</span>
+                    <span id="cartTotal">IDR 0</span>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-top:20px;" onclick="window.location.href='checkout.html'">Proceed to Checkout</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cart = getCart();
+            const itemsContainer = document.getElementById('cartItems');
+            const summaryContainer = document.getElementById('cartSummary');
+            
+            if(cart.length === 0) {
+                itemsContainer.innerHTML = '<p style="margin-top:20px; color:#666;">Your cart is empty.</p><a href="shop.html" class="btn btn-outline" style="margin-top:20px;">Return to Shop</a>';
+                return;
+            }
+
+            let total = 0;
+            let html = '';
+            
+            cart.forEach((item, idx) => {
+                const itemTotal = item.price * item.qty;
+                total += itemTotal;
+                html += `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-details">
+                            <div class="cart-item-title">${item.name}</div>
+                            <div style="color:#666; margin-top:5px;">Qty: ${item.qty}</div>
+                        </div>
+                        <div class="cart-item-price">IDR ${itemTotal.toLocaleString()}</div>
+                    </div>
+                `;
+            });
+
+            itemsContainer.innerHTML = html;
+            document.getElementById('cartTotal').textContent = 'IDR ' + total.toLocaleString();
+            summaryContainer.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
